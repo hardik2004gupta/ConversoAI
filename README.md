@@ -1,7 +1,7 @@
-# ⚡ LightningChat
+# 💬 ConversoAI
 
-**LightningChat ⚡** is an ultra-fast AI chatbot powered by Groq LLMs,
-built using Streamlit and LangChain.\
+**ConversoAI** is an ultra-fast AI chatbot powered by Groq LLMs, built
+using Streamlit and LangChain.\
 It delivers real-time conversational responses with a clean
 ChatGPT-style interface.
 
@@ -41,8 +41,8 @@ ChatGPT-style interface.
 ### 1. Clone the repository
 
 ``` bash
-git clone https://github.com/your-username/lightningchat.git
-cd lightningchat
+git clone https://github.com/your-username/conversoai.git
+cd conversoai
 ```
 
 ### 2. Create virtual environment
