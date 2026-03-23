@@ -4,243 +4,340 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 
 # ---------------- PAGE CONFIG ---------------- #
-st.set_page_config(page_title="Groq Chat", page_icon="⚡", layout="wide")
+st.set_page_config(page_title="Groq Chat", page_icon="⚡", layout="centered")
 
 # ---------------- STYLING ---------------- #
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@400;500;600&display=swap');
 
+/* ── Base ── */
 *, *::before, *::after { box-sizing: border-box; }
 
-html, body, [data-testid="stAppViewContainer"] {
+html, body {
     background-color: #FAF8F5 !important;
-    font-family: 'DM Sans', sans-serif;
-    color: #2C2A27;
-}
-
-#MainMenu, footer, header { visibility: hidden; }
-[data-testid="stDecoration"] { display: none; }
-
-/* ── Desktop: sidebar locked open ── */
-@media (min-width: 768px) {
-    [data-testid="stSidebar"] {
-        transform: none !important;
-        visibility: visible !important;
-        display: block !important;
-        min-width: 244px !important;
-        width: 244px !important;
-        left: 0 !important;
-        position: relative !important;
-    }
-    [data-testid="stSidebarCollapseButton"],
-    [data-testid="collapsedControl"],
-    [data-testid="stSidebarCollapsedControl"] { display: none !important; }
-
-    /* Hide mobile-only expander on desktop */
-    .mobile-settings { display: none !important; }
-}
-
-/* ── Mobile: hide sidebar completely, show expander ── */
-@media (max-width: 767px) {
-    [data-testid="stSidebar"],
-    [data-testid="stSidebarCollapseButton"],
-    [data-testid="collapsedControl"],
-    [data-testid="stSidebarCollapsedControl"] { display: none !important; }
-
-    .block-container {
-        padding: 1rem 0.85rem 6rem 0.85rem !important;
-        max-width: 100% !important;
-    }
-    .chat-header { padding: 0.75rem 0 1rem !important; }
-    .chat-header h1 { font-size: 1.3rem !important; }
-    .chat-header p  { font-size: 0.72rem !important; }
-    .header-icon    { width: 30px !important; height: 30px !important; font-size: 0.9rem !important; line-height: 30px !important; }
-    .bubble         { max-width: 88% !important; font-size: 0.875rem !important; }
-    .avatar         { width: 24px !important; height: 24px !important; font-size: 0.6rem !important; }
-}
-
-/* ── Sidebar theming ── */
-[data-testid="stSidebar"] {
-    background-color: #F2EFE9 !important;
-    border-right: 1px solid #E4DFD7 !important;
-    font-family: 'DM Sans', sans-serif;
-}
-[data-testid="stSidebar"] p,
-[data-testid="stSidebar"] span:not([data-baseweb]),
-[data-testid="stSidebar"] div.stMarkdown {
     font-family: 'DM Sans', sans-serif !important;
-    color: #2C2A27 !important;
-}
-[data-testid="stSidebar"] .stMarkdown h2,
-[data-testid="stSidebar"] .stMarkdown h3 {
-    font-family: 'Lora', serif !important;
-    font-size: 1.05rem !important;
-    color: #5C5142 !important;
-    margin-bottom: 1rem;
-}
-[data-testid="stSidebar"] .stTooltipIcon,
-[data-testid="stSidebar"] button[kind="icon"],
-[data-testid="stSidebar"] [data-testid="tooltipHoverTarget"] { display: none !important; }
-[data-testid="stSidebar"] input,
-[data-testid="stSidebar"] .stTextInput input {
-    background-color: #FDFCFA !important;
-    border: 1px solid #D9D3C9 !important;
-    border-radius: 8px !important;
-    color: #2C2A27 !important;
-    font-size: 0.875rem !important;
-}
-[data-testid="stSidebar"] [data-testid="stSelectbox"] [data-baseweb="select"] > div:first-child {
-    background-color: #FDFCFA !important;
-    border: 1px solid #D9D3C9 !important;
-    border-radius: 8px !important;
-}
-[data-testid="stSidebar"] [data-testid="stSelectbox"] [data-baseweb="select"] span { color: #2C2A27 !important; }
-[data-baseweb="popover"] ul { background-color: #FDFCFA !important; }
-[data-baseweb="popover"] li { color: #2C2A27 !important; font-family: 'DM Sans', sans-serif !important; font-size: 0.875rem !important; }
-[data-baseweb="popover"] li:hover { background-color: #EAE4DC !important; }
-[data-testid="stSidebar"] [data-testid="stSlider"] [data-baseweb="slider"] [role="slider"] {
-    background-color: #8B7D6B !important; border-color: #8B7D6B !important;
-}
-[data-testid="stSidebar"] [data-testid="stSlider"] [data-baseweb="slider"] div[data-testid="stSliderTrack"] > div:nth-child(2) {
-    background: linear-gradient(90deg, #F5A623, #F76B1C) !important;
-}
-[data-testid="stSidebar"] .stButton > button {
-    background-color: transparent !important;
-    border: 1px solid #C8BEB2 !important;
-    border-radius: 8px !important;
-    color: #6B5D51 !important;
-    font-size: 0.82rem !important;
-    font-weight: 500 !important;
-    width: 100%;
-}
-[data-testid="stSidebar"] .stButton > button:hover { background-color: #EAE4DC !important; }
-[data-testid="stSidebar"] label {
-    font-size: 0.78rem !important; font-weight: 500 !important;
-    letter-spacing: 0.05em !important; text-transform: uppercase !important;
-    color: #9B8D7E !important;
-}
-[data-testid="stSidebar"] hr { border-color: #DDD6CC !important; margin: 1.25rem 0 !important; }
-
-/* ── Mobile settings expander ── */
-.mobile-settings [data-testid="stExpander"] {
-    background-color: #F2EFE9 !important;
-    border: 1px solid #E4DFD7 !important;
-    border-radius: 12px !important;
-    margin-bottom: 1.1rem !important;
-}
-.mobile-settings summary {
-    font-family: 'DM Sans', sans-serif !important;
-    font-size: 0.9rem !important;
-    font-weight: 500 !important;
-    color: #5C5142 !important;
-}
-.mobile-settings label {
-    font-size: 0.75rem !important; font-weight: 500 !important;
-    letter-spacing: 0.04em !important; text-transform: uppercase !important;
-    color: #9B8D7E !important;
-}
-.mobile-settings .stButton > button {
-    background-color: transparent !important;
-    border: 1px solid #C8BEB2 !important;
-    border-radius: 8px !important;
-    color: #6B5D51 !important;
-    font-size: 0.82rem !important;
-    width: 100%;
+    color: #1A1816 !important;
 }
 
-/* ── Main content ── */
-[data-testid="stMain"] { background-color: #FAF8F5 !important; }
+[data-testid="stAppViewContainer"],
+[data-testid="stMain"],
+.main {
+    background-color: #FAF8F5 !important;
+}
+
+/* ── Hide Streamlit chrome & sidebar entirely ── */
+#MainMenu, footer, header,
+[data-testid="stSidebar"],
+[data-testid="stSidebarCollapseButton"],
+[data-testid="collapsedControl"],
+[data-testid="stSidebarCollapsedControl"],
+[data-testid="stDecoration"] {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* ── Layout ── */
 .block-container {
-    max-width: 820px !important;
-    padding: 2.5rem 2rem 6rem 2rem !important;
+    max-width: 680px !important;
+    padding: 1.75rem 1.25rem 6rem 1.25rem !important;
     margin: 0 auto !important;
 }
 
 /* ── Page Header ── */
 .chat-header {
     text-align: center;
-    padding: 1.5rem 0 2rem 0;
+    padding: 1.25rem 0 1.5rem 0;
     border-bottom: 1px solid #E8E2D9;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
 }
 .chat-header h1 {
-    font-family: 'Lora', serif;
-    font-size: 2rem; font-weight: 500;
-    color: #2C2A27; letter-spacing: -0.02em;
-    margin: 0 0 0.3rem 0;
+    font-family: 'Lora', serif !important;
+    font-size: 1.85rem;
+    font-weight: 500;
+    color: #1A1816 !important;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.25rem 0;
 }
 .chat-header p {
-    font-size: 0.82rem; color: #9B8D7E;
-    letter-spacing: 0.08em; text-transform: uppercase; margin: 0;
+    font-size: 0.78rem;
+    color: #7A6E65 !important;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin: 0;
 }
 .header-icon {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background: linear-gradient(135deg, #F5A623 0%, #F76B1C 100%);
-    color: white; width: 38px; height: 38px;
-    border-radius: 10px; font-size: 1.1rem;
-    line-height: 38px; text-align: center;
-    margin-bottom: 0.6rem;
-    box-shadow: 0 2px 8px rgba(247,107,28,0.25);
+    color: white;
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    box-shadow: 0 2px 8px rgba(247,107,28,0.28);
+}
+
+/* ── Settings expander ── */
+[data-testid="stExpander"] {
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #E0D9D0 !important;
+    border-radius: 14px !important;
+    margin-bottom: 1.25rem !important;
+    overflow: hidden !important;
+}
+[data-testid="stExpander"] summary,
+[data-testid="stExpander"] [data-testid="stExpanderToggleIcon"] {
+    background-color: #FFFFFF !important;
+    color: #1A1816 !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 0.92rem !important;
+    font-weight: 600 !important;
+    padding: 0.75rem 1rem !important;
+}
+/* Expander inner content background */
+[data-testid="stExpander"] > div:last-child {
+    background-color: #FDFCFA !important;
+    padding: 0.5rem 1rem 1rem 1rem !important;
+    border-top: 1px solid #EDE7DE !important;
+}
+
+/* ── ALL labels — force dark, visible ── */
+label,
+.stTextInput label,
+.stSelectbox label,
+.stSlider label,
+[data-testid="stWidgetLabel"],
+[data-testid="stWidgetLabel"] p,
+[data-baseweb="form-control-label"],
+p.st-emotion-cache-label {
+    color: #1A1816 !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.04em !important;
+    text-transform: uppercase !important;
+}
+
+/* ── Text inputs ── */
+input[type="text"],
+input[type="password"],
+input[type="number"],
+.stTextInput input {
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #D4CCC3 !important;
+    border-radius: 9px !important;
+    color: #1A1816 !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 0.9rem !important;
+    padding: 0.5rem 0.75rem !important;
+}
+input[type="text"]:focus,
+input[type="password"]:focus,
+.stTextInput input:focus {
+    border-color: #C8A882 !important;
+    box-shadow: 0 0 0 3px rgba(200,168,130,0.2) !important;
+    outline: none !important;
+}
+input[type="text"]::placeholder,
+input[type="password"]::placeholder {
+    color: #A89880 !important;
+}
+
+/* ── Selectbox ── */
+[data-baseweb="select"] > div:first-child {
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #D4CCC3 !important;
+    border-radius: 9px !important;
+    color: #1A1816 !important;
+}
+[data-baseweb="select"] span,
+[data-baseweb="select"] div {
+    color: #1A1816 !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 0.9rem !important;
+}
+[data-baseweb="popover"] ul { background-color: #FFFFFF !important; }
+[data-baseweb="popover"] li {
+    color: #1A1816 !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 0.9rem !important;
+}
+[data-baseweb="popover"] li:hover { background-color: #F2EDE6 !important; }
+
+/* ── Sliders ── */
+[data-testid="stSlider"] [role="slider"] {
+    background-color: #8B7D6B !important;
+    border-color: #8B7D6B !important;
+}
+[data-testid="stSlider"] [data-testid="stSliderTrack"] > div:nth-child(2) {
+    background: linear-gradient(90deg, #F5A623, #F76B1C) !important;
+}
+[data-testid="stSliderThumbValue"],
+[data-testid="stSlider"] p {
+    color: #1A1816 !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 0.82rem !important;
+    font-weight: 500 !important;
+}
+[data-testid="stTickBarMin"],
+[data-testid="stTickBarMax"] {
+    color: #7A6E65 !important;
+    font-size: 0.72rem !important;
+}
+
+/* ── Caption text ── */
+[data-testid="stCaptionContainer"] p,
+.stCaption, small {
+    color: #7A6E65 !important;
+    font-size: 0.74rem !important;
+    font-family: 'DM Sans', sans-serif !important;
+}
+
+/* ── Buttons ── */
+.stButton > button {
+    background-color: transparent !important;
+    border: 1.5px solid #C8BEB2 !important;
+    border-radius: 9px !important;
+    color: #3D3530 !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+    padding: 0.45rem 1rem !important;
+    transition: background 0.18s, border-color 0.18s !important;
+    width: 100% !important;
+}
+.stButton > button:hover {
+    background-color: #F0EBE3 !important;
+    border-color: #A89880 !important;
+}
+
+/* ── Divider ── */
+hr {
+    border: none !important;
+    border-top: 1px solid #E8E2D9 !important;
+    margin: 1rem 0 !important;
 }
 
 /* ── Messages ── */
-.message-row { display: flex; margin-bottom: 1.1rem; animation: fadeUp 0.25s ease; }
+.message-row {
+    display: flex;
+    margin-bottom: 1rem;
+    animation: fadeUp 0.22s ease;
+}
 .message-row.user { justify-content: flex-end; }
 .message-row.bot  { justify-content: flex-start; }
+
 .avatar {
-    width: 30px; height: 30px; border-radius: 50%;
-    flex-shrink: 0; display: flex; align-items: center;
-    justify-content: center; font-size: 0.75rem; font-weight: 600; margin-top: 2px;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; font-weight: 700;
+    margin-top: 3px;
 }
-.avatar-user { background: linear-gradient(135deg, #F5A623, #F76B1C); color: white; margin-left: 0.6rem; order: 2; }
-.avatar-bot  { background: #EAE4DC; color: #6B5D51; margin-right: 0.6rem; }
+.avatar-user {
+    background: linear-gradient(135deg, #F5A623, #F76B1C);
+    color: #FFFFFF;
+    margin-left: 0.55rem;
+    order: 2;
+}
+.avatar-bot {
+    background: #EAE4DC;
+    color: #5C5044;
+    margin-right: 0.55rem;
+}
+
 .bubble {
-    max-width: 72%; padding: 0.75rem 1rem;
-    border-radius: 14px; font-size: 0.9rem;
-    line-height: 1.65; word-break: break-word;
+    max-width: 78%;
+    padding: 0.7rem 0.95rem;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    word-break: break-word;
+    font-family: 'DM Sans', sans-serif !important;
 }
 .bubble-user {
     background: linear-gradient(135deg, #F5A623 0%, #F76B1C 100%);
-    color: #FFFFFF; border-bottom-right-radius: 4px;
-    box-shadow: 0 2px 10px rgba(247,107,28,0.2);
+    color: #FFFFFF !important;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 2px 10px rgba(247,107,28,0.22);
 }
 .bubble-bot {
-    background: #FFFFFF; color: #2C2A27;
-    border: 1px solid #E8E2D9; border-bottom-left-radius: 4px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    background: #FFFFFF;
+    color: #1A1816 !important;
+    border: 1.5px solid #E8E2D9;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.05);
 }
 
 /* ── Empty state ── */
-.empty-state { text-align: center; padding: 3rem 1rem; color: #B5A898; }
-.empty-state .big-icon { font-size: 2.2rem; margin-bottom: 0.6rem; opacity: 0.45; }
-.empty-state p { font-size: 0.88rem; font-family: 'Lora', serif; font-style: italic; margin: 0; }
+.empty-state {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: #A89880 !important;
+}
+.empty-state .big-icon { font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5; }
+.empty-state p {
+    font-size: 0.9rem;
+    font-family: 'Lora', serif !important;
+    font-style: italic;
+    color: #A89880 !important;
+    margin: 0;
+}
 
 /* ── Chat input ── */
 [data-testid="stChatInput"] {
-    background: #FFFFFF !important; border: 1.5px solid #DDD6CC !important;
-    border-radius: 14px !important; box-shadow: 0 2px 14px rgba(0,0,0,0.07) !important;
+    background: #FFFFFF !important;
+    border: 1.5px solid #D4CCC3 !important;
+    border-radius: 14px !important;
+    box-shadow: 0 2px 14px rgba(0,0,0,0.07) !important;
 }
-[data-testid="stChatInput"]:focus-within { border-color: #B5A080 !important; }
+[data-testid="stChatInput"]:focus-within {
+    border-color: #C8A882 !important;
+    box-shadow: 0 2px 18px rgba(0,0,0,0.1) !important;
+}
 [data-testid="stChatInput"] textarea {
     font-family: 'DM Sans', sans-serif !important;
-    font-size: 0.9rem !important; color: #2C2A27 !important;
+    font-size: 0.92rem !important;
+    color: #1A1816 !important;
+    background: transparent !important;
 }
-[data-testid="stChatInput"] textarea::placeholder { color: #B5A898 !important; }
+[data-testid="stChatInput"] textarea::placeholder { color: #A89880 !important; }
 [data-testid="stChatInput"] button {
     background: linear-gradient(135deg, #F5A623, #F76B1C) !important;
-    border-radius: 10px !important; border: none !important;
+    border-radius: 10px !important;
+    border: none !important;
 }
 
-/* ── Misc ── */
+/* ── Warning / alert ── */
 [data-testid="stStatusWidget"] { display: none; }
 [data-testid="stAlert"] {
-    background-color: #FFF8F0 !important; border: 1px solid #F5C49B !important;
-    border-radius: 10px !important; color: #7A4E2D !important; font-size: 0.85rem !important;
+    background-color: #FFF8F0 !important;
+    border: 1px solid #F5C49B !important;
+    border-radius: 10px !important;
+    color: #6B3A1A !important;
+    font-size: 0.87rem !important;
 }
-@keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-thumb { background: #D9D3C9; border-radius: 10px; }
+[data-testid="stAlert"] p { color: #6B3A1A !important; }
+
+/* ── Animations ── */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(7px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: #D4CCC3; border-radius: 8px; }
+
+/* ── Mobile tweaks ── */
+@media (max-width: 600px) {
+    .block-container { padding: 1rem 0.75rem 6rem 0.75rem !important; }
+    .chat-header h1  { font-size: 1.45rem !important; }
+    .bubble          { max-width: 90% !important; font-size: 0.875rem !important; }
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -263,26 +360,6 @@ def generate_response(question, api_key, model, temperature, max_tokens):
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# ── Desktop sidebar ──────────────────────────────────────────────── #
-with st.sidebar:
-    st.markdown("### ⚙️ Settings")
-    st.markdown("---")
-    api_key     = st.text_input("Groq API Key", type="password", placeholder="gsk_...", key="api_key")
-    st.markdown("---")
-    model       = st.selectbox("Model", ["llama-3.1-8b-instant", "llama-3.1-70b-versatile"], key="model")
-    st.caption("8b = faster  ·  70b = smarter")
-    temperature = st.slider("Temperature", 0.0, 1.0, 0.7, step=0.05, key="temperature")
-    st.caption("Higher = more creative")
-    max_tokens  = st.slider("Max Tokens", 50, 1000, 300, step=50, key="max_tokens")
-    st.markdown("---")
-    if st.button("🧹 Clear conversation", key="clear_btn"):
-        st.session_state.messages = []
-        st.rerun()
-    st.markdown(
-        "<p style='font-size:0.72rem;color:#B5A898;margin-top:1rem;text-align:center;'>"
-        "Powered by Groq · LangChain</p>", unsafe_allow_html=True
-    )
-
 # ---------------- HEADER ---------------- #
 st.markdown("""
 <div class="chat-header">
@@ -292,26 +369,35 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ── Mobile settings expander (hidden on desktop via CSS) ─────────── #
-st.markdown('<div class="mobile-settings">', unsafe_allow_html=True)
+# ---------------- SETTINGS EXPANDER ---------------- #
 with st.expander("⚙️  Settings", expanded=False):
-    mob_api_key     = st.text_input("Groq API Key", type="password", placeholder="gsk_...", key="mob_api_key")
-    mob_model       = st.selectbox("Model", ["llama-3.1-8b-instant", "llama-3.1-70b-versatile"], key="mob_model")
+    api_key = st.text_input("Groq API Key", type="password",
+                            placeholder="gsk_...", key="api_key")
+    st.divider()
+    model = st.selectbox(
+        "Model",
+        ["llama-3.1-8b-instant", "llama-3.1-70b-versatile"],
+        key="model"
+    )
     st.caption("8b = faster  ·  70b = smarter")
-    mob_temperature = st.slider("Temperature", 0.0, 1.0, 0.7, step=0.05, key="mob_temperature")
+    temperature = st.slider("Temperature", 0.0, 1.0, 0.7, step=0.05, key="temperature")
     st.caption("Higher = more creative")
-    mob_max_tokens  = st.slider("Max Tokens", 50, 1000, 300, step=50, key="mob_max_tokens")
-    if st.button("🧹 Clear conversation", key="mob_clear"):
+    max_tokens = st.slider("Max Tokens", 50, 1000, 300, step=50, key="max_tokens")
+    st.divider()
+    if st.button("🧹 Clear conversation", key="clear_btn"):
         st.session_state.messages = []
         st.rerun()
-st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown(
+        "<p style='font-size:0.72rem; color:#A89880; margin-top:0.75rem; text-align:center;'>"
+        "Powered by Groq · LangChain</p>",
+        unsafe_allow_html=True
+    )
 
-# Prefer mobile inputs when provided
-if st.session_state.get("mob_api_key"):
-    api_key     = st.session_state["mob_api_key"]
-    model       = st.session_state["mob_model"]
-    temperature = st.session_state["mob_temperature"]
-    max_tokens  = st.session_state["mob_max_tokens"]
+# Read values from session state
+api_key     = st.session_state.get("api_key", "")
+model       = st.session_state.get("model", "llama-3.1-8b-instant")
+temperature = st.session_state.get("temperature", 0.7)
+max_tokens  = st.session_state.get("max_tokens", 300)
 
 # ---------------- CHAT DISPLAY ---------------- #
 if not st.session_state.messages:
@@ -342,7 +428,7 @@ user_input = st.chat_input("Type a message…")
 # ---------------- RESPONSE ---------------- #
 if user_input:
     if not api_key:
-        st.warning("⚠️  Please enter your Groq API key in Settings to continue.")
+        st.warning("⚠️  Please enter your Groq API key in Settings above.")
         st.stop()
 
     st.session_state.messages.append({"role": "user", "content": user_input})
