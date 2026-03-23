@@ -45,93 +45,32 @@ html, body, [data-testid="stAppViewContainer"] {
     #mob-fab, #mob-backdrop { display: none !important; }
 }
 
-/* ════════════════════════════════════════
-   MOBILE  (< 768px) — drawer overlay
-   ════════════════════════════════════════ */
+/* ── Mobile-only elements hidden on desktop ── */
 @media (max-width: 767px) {
-
-    /* Hide ALL native sidebar toggle controls */
     [data-testid="stSidebarCollapseButton"],
     [data-testid="collapsedControl"],
     [data-testid="stSidebarCollapsedControl"] {
         display: none !important;
     }
-
-    /* Force sidebar into DOM and position it as a drawer.
-       Must override Streamlit's inline display:none / transform */
-    [data-testid="stSidebar"],
-    [data-testid="stSidebar"][style] {
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        height: 100dvh !important;
-        width: 82vw !important;
-        max-width: 300px !important;
-        z-index: 1100 !important;
-        transform: translateX(-105%) !important;
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        box-shadow: 6px 0 40px rgba(0,0,0,0.15) !important;
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
-        padding-top: 1.25rem !important;
-    }
-
-    /* Drawer open state */
-    body.mob-open [data-testid="stSidebar"],
-    body.mob-open [data-testid="stSidebar"][style] {
-        transform: translateX(0) !important;
-    }
-
-    /* Dim backdrop */
-    #mob-backdrop {
-        display: block !important;
-        position: fixed !important;
-        inset: 0 !important;
-        background: rgba(44, 42, 39, 0.5) !important;
-        z-index: 1099 !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-        transition: opacity 0.3s ease !important;
-        -webkit-tap-highlight-color: transparent;
-    }
-    body.mob-open #mob-backdrop {
-        opacity: 1 !important;
-        pointer-events: all !important;
-    }
-
-    /* Main area: full width, no left margin */
-    [data-testid="stAppViewContainer"] {
-        display: flex !important;
-        flex-direction: row !important;
-    }
-    [data-testid="stSidebar"] ~ section,
-    [data-testid="stMain"] {
-        margin-left: 0 !important;
-        width: 100vw !important;
-        min-width: 0 !important;
-        flex: 1 1 auto !important;
-    }
-
-    /* Prevent body scroll when drawer open */
-    body.mob-open { overflow: hidden !important; }
-
-    /* Readable text & padding */
-    .block-container {
-        padding: 1rem 0.9rem 7rem 0.9rem !important;
-        max-width: 100% !important;
-    }
-    .chat-header { padding: 0.9rem 0 1.1rem !important; }
-    .chat-header h1 { font-size: 1.35rem !important; }
+    .block-container { max-width: 100% !important; }
     .bubble { max-width: 86% !important; font-size: 0.88rem !important; }
-    .avatar { width: 26px !important; height: 26px !important; font-size: 0.65rem !important; }
+    .chat-header h1 { font-size: 1.35rem !important; }
+}
 
-    /* Safe area for iOS home bar */
-    [data-testid="stBottom"] {
-        padding-bottom: env(safe-area-inset-bottom, 0.5rem) !important;
-    }
+/* ── Mobile backdrop (always in DOM, JS controls opacity) ── */
+#mob-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(44, 42, 39, 0.5);
+    z-index: 1099;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+@media (max-width: 767px) {
+    #mob-backdrop { display: block; }
 }
 
 /* ── Floating Action Button (mobile only) ── */
@@ -425,50 +364,121 @@ html, body, [data-testid="stAppViewContainer"] {
 
 <script>
 (function () {
-    var OPEN_CLASS = 'mob-open';
+    var isOpen = false;
 
     function isMobile() { return window.innerWidth < 768; }
 
-    var fab      = document.getElementById('mob-fab');
-    var backdrop = document.getElementById('mob-backdrop');
+    /* ── Inject a persistent <style> that JS can toggle ── */
+    var styleTag = document.createElement('style');
+    styleTag.id = 'mob-style';
+    document.head.appendChild(styleTag);
 
-    function openDrawer()  { document.body.classList.add(OPEN_CLASS); }
-    function closeDrawer() { document.body.classList.remove(OPEN_CLASS); }
+    function applyStyles() {
+        if (!isMobile()) {
+            styleTag.textContent = '';
+            return;
+        }
+        var drawerTranslate = isOpen ? 'translateX(0)' : 'translateX(-105%)';
+        var backdropOpacity = isOpen ? '1' : '0';
+        var backdropPointer = isOpen ? 'all' : 'none';
 
+        styleTag.textContent = [
+            /* Force sidebar always in DOM and positioned as drawer */
+            '[data-testid="stSidebar"] {',
+            '  display: block !important;',
+            '  visibility: visible !important;',
+            '  opacity: 1 !important;',
+            '  position: fixed !important;',
+            '  top: 0 !important; left: 0 !important;',
+            '  height: 100vh !important;',
+            '  width: 82vw !important;',
+            '  max-width: 300px !important;',
+            '  z-index: 1100 !important;',
+            '  transform: ' + drawerTranslate + ' !important;',
+            '  transition: transform 0.3s ease !important;',
+            '  overflow-y: auto !important;',
+            '  box-shadow: 6px 0 40px rgba(0,0,0,0.18) !important;',
+            '  padding-top: 1.25rem !important;',
+            '}',
+            /* Full-width main content */
+            '[data-testid="stMain"] {',
+            '  margin-left: 0 !important;',
+            '  width: 100vw !important;',
+            '  min-width: 0 !important;',
+            '}',
+            '[data-testid="stAppViewContainer"] > section:first-child {',
+            '  margin-left: 0 !important;',
+            '  width: 100vw !important;',
+            '}',
+            /* Backdrop */
+            '#mob-backdrop {',
+            '  opacity: ' + backdropOpacity + ' !important;',
+            '  pointer-events: ' + backdropPointer + ' !important;',
+            '}',
+        ].join('\n');
+    }
+
+    /* ── Heartbeat: re-enforce styles every 300ms ── */
+    setInterval(function () {
+        if (!isMobile()) return;
+        var sb = document.querySelector('[data-testid="stSidebar"]');
+        if (!sb) return;
+        /* Override any inline style Streamlit sets */
+        sb.style.setProperty('display',     'block',   'important');
+        sb.style.setProperty('visibility',  'visible', 'important');
+        sb.style.setProperty('opacity',     '1',       'important');
+        sb.style.setProperty('position',    'fixed',   'important');
+        sb.style.setProperty('top',         '0',       'important');
+        sb.style.setProperty('left',        '0',       'important');
+        sb.style.setProperty('height',      '100vh',   'important');
+        sb.style.setProperty('width',       '82vw',    'important');
+        sb.style.setProperty('max-width',   '300px',   'important');
+        sb.style.setProperty('z-index',     '1100',    'important');
+        sb.style.setProperty('overflow-y',  'auto',    'important');
+        sb.style.setProperty('transform',
+            isOpen ? 'translateX(0)' : 'translateX(-105%)', 'important');
+        /* Main area */
+        var main = document.querySelector('[data-testid="stMain"]');
+        if (main) {
+            main.style.setProperty('margin-left', '0', 'important');
+            main.style.setProperty('width', '100vw', 'important');
+        }
+    }, 300);
+
+    /* ── Drawer open / close ── */
+    function openDrawer() {
+        isOpen = true;
+        applyStyles();
+    }
+    function closeDrawer() {
+        isOpen = false;
+        applyStyles();
+    }
+
+    /* ── FAB button ── */
+    var fab = document.getElementById('mob-fab');
     if (fab) {
         fab.addEventListener('click', function (e) {
             e.stopPropagation();
-            document.body.classList.contains(OPEN_CLASS) ? closeDrawer() : openDrawer();
+            if (!isMobile()) return;
+            isOpen ? closeDrawer() : openDrawer();
         });
     }
+
+    /* ── Backdrop tap closes drawer ── */
+    var backdrop = document.getElementById('mob-backdrop');
     if (backdrop) {
         backdrop.addEventListener('click', closeDrawer);
     }
 
+    /* ── Resize: close on desktop ── */
     window.addEventListener('resize', function () {
-        if (!isMobile()) closeDrawer();
+        if (!isMobile()) { isOpen = false; styleTag.textContent = ''; }
+        else applyStyles();
     });
 
-    /* Streamlit may re-apply inline display:none on rerun — watch & revert */
-    function watchSidebar() {
-        var sb = document.querySelector('[data-testid="stSidebar"]');
-        if (!sb) { setTimeout(watchSidebar, 300); return; }
-
-        var obs = new MutationObserver(function () {
-            if (isMobile()) {
-                /* Always keep it in DOM; transform handles show/hide */
-                if (sb.style.display === 'none') sb.style.display = 'block';
-                if (sb.style.visibility === 'hidden') sb.style.visibility = 'visible';
-            }
-        });
-        obs.observe(sb, { attributes: true, attributeFilter: ['style', 'class'] });
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', watchSidebar);
-    } else {
-        setTimeout(watchSidebar, 200);
-    }
+    /* ── Init ── */
+    applyStyles();
 })();
 </script>
 """, unsafe_allow_html=True)
