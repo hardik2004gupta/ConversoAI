@@ -288,7 +288,9 @@ hr {
 }
 
 /* ── Chat input ── */
-[data-testid="stChatInput"] {
+[data-testid="stChatInput"],
+[data-testid="stChatInput"] > div,
+[data-testid="stChatInput"] > div > div {
     background: #FFFFFF !important;
     border: 1.5px solid #D4CCC3 !important;
     border-radius: 14px !important;
@@ -298,11 +300,15 @@ hr {
     border-color: #C8A882 !important;
     box-shadow: 0 2px 18px rgba(0,0,0,0.1) !important;
 }
-[data-testid="stChatInput"] textarea {
+[data-testid="stChatInput"] textarea,
+[data-testid="stChatInput"] textarea:focus,
+[data-testid="stChatInput"] textarea:active {
     font-family: 'DM Sans', sans-serif !important;
     font-size: 0.92rem !important;
     color: #1A1816 !important;
-    background: transparent !important;
+    background: #FFFFFF !important;
+    -webkit-text-fill-color: #1A1816 !important;
+    caret-color: #1A1816 !important;
 }
 [data-testid="stChatInput"] textarea::placeholder { color: #A89880 !important; }
 [data-testid="stChatInput"] button {
