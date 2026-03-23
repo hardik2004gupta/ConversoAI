@@ -50,71 +50,85 @@ html, body, [data-testid="stAppViewContainer"] {
    ════════════════════════════════════════ */
 @media (max-width: 767px) {
 
-    /* Hide native toggle buttons */
+    /* Hide ALL native sidebar toggle controls */
     [data-testid="stSidebarCollapseButton"],
     [data-testid="collapsedControl"],
     [data-testid="stSidebarCollapsedControl"] {
         display: none !important;
     }
 
-    /* Sidebar becomes a fixed full-height drawer, off-screen by default */
-    [data-testid="stSidebar"] {
+    /* Force sidebar into DOM and position it as a drawer.
+       Must override Streamlit's inline display:none / transform */
+    [data-testid="stSidebar"],
+    [data-testid="stSidebar"][style] {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
         position: fixed !important;
         top: 0 !important;
         left: 0 !important;
         height: 100dvh !important;
-        width: 88vw !important;
-        max-width: 320px !important;
+        width: 82vw !important;
+        max-width: 300px !important;
         z-index: 1100 !important;
-        transform: translateX(-110%) !important;
-        transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        box-shadow: 4px 0 32px rgba(0,0,0,0.13) !important;
+        transform: translateX(-105%) !important;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 6px 0 40px rgba(0,0,0,0.15) !important;
         overflow-y: auto !important;
-        padding-top: 1rem !important;
+        overflow-x: hidden !important;
+        padding-top: 1.25rem !important;
     }
-    /* Open state — JS adds this class to <body> */
-    body.sidebar-open [data-testid="stSidebar"] {
+
+    /* Drawer open state */
+    body.mob-open [data-testid="stSidebar"],
+    body.mob-open [data-testid="stSidebar"][style] {
         transform: translateX(0) !important;
     }
 
     /* Dim backdrop */
     #mob-backdrop {
-        display: block;
-        position: fixed;
-        inset: 0;
-        background: rgba(44, 42, 39, 0.45);
-        z-index: 1099;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.28s ease;
+        display: block !important;
+        position: fixed !important;
+        inset: 0 !important;
+        background: rgba(44, 42, 39, 0.5) !important;
+        z-index: 1099 !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        transition: opacity 0.3s ease !important;
+        -webkit-tap-highlight-color: transparent;
     }
-    body.sidebar-open #mob-backdrop {
-        opacity: 1;
-        pointer-events: all;
+    body.mob-open #mob-backdrop {
+        opacity: 1 !important;
+        pointer-events: all !important;
     }
 
-    /* Give main content full width */
-    [data-testid="stAppViewContainer"] > section:last-child {
+    /* Main area: full width, no left margin */
+    [data-testid="stAppViewContainer"] {
+        display: flex !important;
+        flex-direction: row !important;
+    }
+    [data-testid="stSidebar"] ~ section,
+    [data-testid="stMain"] {
         margin-left: 0 !important;
-        width: 100% !important;
+        width: 100vw !important;
+        min-width: 0 !important;
+        flex: 1 1 auto !important;
     }
 
-    /* Tighter main padding on mobile */
+    /* Prevent body scroll when drawer open */
+    body.mob-open { overflow: hidden !important; }
+
+    /* Readable text & padding */
     .block-container {
-        padding: 1rem 1rem 7rem 1rem !important;
+        padding: 1rem 0.9rem 7rem 0.9rem !important;
+        max-width: 100% !important;
     }
-
-    /* Smaller header on mobile */
-    .chat-header { padding: 1rem 0 1.25rem 0 !important; }
-    .chat-header h1 { font-size: 1.4rem !important; }
-
-    /* Bubbles fill more width on narrow screens */
-    .bubble { max-width: 88% !important; }
-
-    /* Larger tap targets for avatars */
+    .chat-header { padding: 0.9rem 0 1.1rem !important; }
+    .chat-header h1 { font-size: 1.35rem !important; }
+    .bubble { max-width: 86% !important; font-size: 0.88rem !important; }
     .avatar { width: 26px !important; height: 26px !important; font-size: 0.65rem !important; }
 
-    /* Chat input sits above mobile keyboard */
+    /* Safe area for iOS home bar */
     [data-testid="stBottom"] {
         padding-bottom: env(safe-area-inset-bottom, 0.5rem) !important;
     }
@@ -411,23 +425,50 @@ html, body, [data-testid="stAppViewContainer"] {
 
 <script>
 (function () {
+    var OPEN_CLASS = 'mob-open';
+
     function isMobile() { return window.innerWidth < 768; }
 
     var fab      = document.getElementById('mob-fab');
     var backdrop = document.getElementById('mob-backdrop');
 
-    function openDrawer()  { document.body.classList.add('sidebar-open'); }
-    function closeDrawer() { document.body.classList.remove('sidebar-open'); }
+    function openDrawer()  { document.body.classList.add(OPEN_CLASS); }
+    function closeDrawer() { document.body.classList.remove(OPEN_CLASS); }
 
-    if (fab)      fab.addEventListener('click', function() {
-        document.body.classList.contains('sidebar-open') ? closeDrawer() : openDrawer();
-    });
-    if (backdrop) backdrop.addEventListener('click', closeDrawer);
+    if (fab) {
+        fab.addEventListener('click', function (e) {
+            e.stopPropagation();
+            document.body.classList.contains(OPEN_CLASS) ? closeDrawer() : openDrawer();
+        });
+    }
+    if (backdrop) {
+        backdrop.addEventListener('click', closeDrawer);
+    }
 
-    // Close on resize to desktop
-    window.addEventListener('resize', function() {
+    window.addEventListener('resize', function () {
         if (!isMobile()) closeDrawer();
     });
+
+    /* Streamlit may re-apply inline display:none on rerun — watch & revert */
+    function watchSidebar() {
+        var sb = document.querySelector('[data-testid="stSidebar"]');
+        if (!sb) { setTimeout(watchSidebar, 300); return; }
+
+        var obs = new MutationObserver(function () {
+            if (isMobile()) {
+                /* Always keep it in DOM; transform handles show/hide */
+                if (sb.style.display === 'none') sb.style.display = 'block';
+                if (sb.style.visibility === 'hidden') sb.style.visibility = 'visible';
+            }
+        });
+        obs.observe(sb, { attributes: true, attributeFilter: ['style', 'class'] });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', watchSidebar);
+    } else {
+        setTimeout(watchSidebar, 200);
+    }
 })();
 </script>
 """, unsafe_allow_html=True)
