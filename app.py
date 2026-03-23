@@ -11,7 +11,6 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap');
 
-/* ── Reset & Base ── */
 *, *::before, *::after { box-sizing: border-box; }
 
 html, body, [data-testid="stAppViewContainer"] {
@@ -20,13 +19,10 @@ html, body, [data-testid="stAppViewContainer"] {
     color: #2C2A27;
 }
 
-/* ── Hide Streamlit Chrome ── */
 #MainMenu, footer, header { visibility: hidden; }
 [data-testid="stDecoration"] { display: none; }
 
-/* ════════════════════════════════════════
-   DESKTOP  (≥ 768px) — sidebar locked open
-   ════════════════════════════════════════ */
+/* ── Desktop: sidebar locked open ── */
 @media (min-width: 768px) {
     [data-testid="stSidebar"] {
         transform: none !important;
@@ -39,67 +35,32 @@ html, body, [data-testid="stAppViewContainer"] {
     }
     [data-testid="stSidebarCollapseButton"],
     [data-testid="collapsedControl"],
-    [data-testid="stSidebarCollapsedControl"] {
-        display: none !important;
-    }
-    #mob-fab, #mob-backdrop { display: none !important; }
+    [data-testid="stSidebarCollapsedControl"] { display: none !important; }
+
+    /* Hide mobile-only expander on desktop */
+    .mobile-settings { display: none !important; }
 }
 
-/* ── Mobile-only elements hidden on desktop ── */
+/* ── Mobile: hide sidebar completely, show expander ── */
 @media (max-width: 767px) {
+    [data-testid="stSidebar"],
     [data-testid="stSidebarCollapseButton"],
     [data-testid="collapsedControl"],
-    [data-testid="stSidebarCollapsedControl"] {
-        display: none !important;
+    [data-testid="stSidebarCollapsedControl"] { display: none !important; }
+
+    .block-container {
+        padding: 1rem 0.85rem 6rem 0.85rem !important;
+        max-width: 100% !important;
     }
-    .block-container { max-width: 100% !important; }
-    .bubble { max-width: 86% !important; font-size: 0.88rem !important; }
-    .chat-header h1 { font-size: 1.35rem !important; }
+    .chat-header { padding: 0.75rem 0 1rem !important; }
+    .chat-header h1 { font-size: 1.3rem !important; }
+    .chat-header p  { font-size: 0.72rem !important; }
+    .header-icon    { width: 30px !important; height: 30px !important; font-size: 0.9rem !important; line-height: 30px !important; }
+    .bubble         { max-width: 88% !important; font-size: 0.875rem !important; }
+    .avatar         { width: 24px !important; height: 24px !important; font-size: 0.6rem !important; }
 }
 
-/* ── Mobile backdrop (always in DOM, JS controls opacity) ── */
-#mob-backdrop {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(44, 42, 39, 0.5);
-    z-index: 1099;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-    -webkit-tap-highlight-color: transparent;
-}
-@media (max-width: 767px) {
-    #mob-backdrop { display: block; }
-}
-
-/* ── Floating Action Button (mobile only) ── */
-#mob-fab {
-    position: fixed;
-    bottom: 5.5rem;
-    right: 1.1rem;
-    z-index: 1200;
-    width: 46px;
-    height: 46px;
-    border-radius: 14px;
-    background: #FFFFFF;
-    border: 1px solid #E0D9D0;
-    box-shadow: 0 4px 18px rgba(0,0,0,0.12);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.15s, box-shadow 0.15s;
-    -webkit-tap-highlight-color: transparent;
-}
-#mob-fab:active { transform: scale(0.93); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-#mob-fab svg {
-    width: 18px; height: 18px;
-    stroke: #6B5D51; stroke-width: 2;
-    stroke-linecap: round; fill: none;
-}
-
-/* ── Sidebar theming (shared desktop + mobile) ── */
+/* ── Sidebar theming ── */
 [data-testid="stSidebar"] {
     background-color: #F2EFE9 !important;
     border-right: 1px solid #E4DFD7 !important;
@@ -115,7 +76,6 @@ html, body, [data-testid="stAppViewContainer"] {
 [data-testid="stSidebar"] .stMarkdown h3 {
     font-family: 'Lora', serif !important;
     font-size: 1.05rem !important;
-    letter-spacing: 0.01em;
     color: #5C5142 !important;
     margin-bottom: 1rem;
 }
@@ -129,48 +89,21 @@ html, body, [data-testid="stAppViewContainer"] {
     border-radius: 8px !important;
     color: #2C2A27 !important;
     font-size: 0.875rem !important;
-    padding: 0.45rem 0.75rem !important;
-}
-[data-testid="stSidebar"] input:focus {
-    border-color: #B5A898 !important;
-    box-shadow: 0 0 0 3px rgba(181,168,152,0.18) !important;
-    outline: none !important;
 }
 [data-testid="stSidebar"] [data-testid="stSelectbox"] [data-baseweb="select"] > div:first-child {
     background-color: #FDFCFA !important;
     border: 1px solid #D9D3C9 !important;
     border-radius: 8px !important;
-    font-size: 0.875rem !important;
 }
-[data-testid="stSidebar"] [data-testid="stSelectbox"] [data-baseweb="select"] span {
-    color: #2C2A27 !important;
-}
+[data-testid="stSidebar"] [data-testid="stSelectbox"] [data-baseweb="select"] span { color: #2C2A27 !important; }
 [data-baseweb="popover"] ul { background-color: #FDFCFA !important; }
-[data-baseweb="popover"] li {
-    color: #2C2A27 !important;
-    font-family: 'DM Sans', sans-serif !important;
-    font-size: 0.875rem !important;
-}
+[data-baseweb="popover"] li { color: #2C2A27 !important; font-family: 'DM Sans', sans-serif !important; font-size: 0.875rem !important; }
 [data-baseweb="popover"] li:hover { background-color: #EAE4DC !important; }
 [data-testid="stSidebar"] [data-testid="stSlider"] [data-baseweb="slider"] [role="slider"] {
-    background-color: #8B7D6B !important;
-    border-color: #8B7D6B !important;
-}
-[data-testid="stSidebar"] [data-testid="stSlider"] [data-baseweb="slider"] div[data-testid="stSliderTrack"] > div:first-child {
-    background-color: #D9D3C9 !important;
+    background-color: #8B7D6B !important; border-color: #8B7D6B !important;
 }
 [data-testid="stSidebar"] [data-testid="stSlider"] [data-baseweb="slider"] div[data-testid="stSliderTrack"] > div:nth-child(2) {
     background: linear-gradient(90deg, #F5A623, #F76B1C) !important;
-}
-[data-testid="stSidebar"] [data-testid="stSlider"] [data-testid="stSliderThumbValue"] {
-    color: #6B5D51 !important;
-    font-size: 0.78rem !important;
-    font-family: 'DM Sans', sans-serif !important;
-}
-[data-testid="stSidebar"] [data-testid="stSlider"] div[data-testid="stTickBarMin"],
-[data-testid="stSidebar"] [data-testid="stSlider"] div[data-testid="stTickBarMax"] {
-    color: #9B8D7E !important;
-    font-size: 0.72rem !important;
 }
 [data-testid="stSidebar"] .stButton > button {
     background-color: transparent !important;
@@ -179,37 +112,44 @@ html, body, [data-testid="stAppViewContainer"] {
     color: #6B5D51 !important;
     font-size: 0.82rem !important;
     font-weight: 500 !important;
-    padding: 0.5rem 1rem !important;
-    transition: background 0.2s, border-color 0.2s !important;
     width: 100%;
 }
-[data-testid="stSidebar"] .stButton > button:hover {
-    background-color: #EAE4DC !important;
-    border-color: #A89880 !important;
-}
-[data-testid="stSidebar"] [data-testid="stCaptionContainer"] p {
-    font-size: 0.72rem !important;
-    color: #B5A898 !important;
-    margin-top: -0.4rem !important;
-    margin-bottom: 0.6rem !important;
-    font-family: 'DM Sans', sans-serif !important;
-}
-[data-testid="stSidebar"] label,
-[data-testid="stSidebar"] .stSlider label,
-[data-testid="stSidebar"] .stSelectbox label {
-    font-size: 0.78rem !important;
-    font-weight: 500 !important;
-    letter-spacing: 0.05em !important;
-    text-transform: uppercase !important;
+[data-testid="stSidebar"] .stButton > button:hover { background-color: #EAE4DC !important; }
+[data-testid="stSidebar"] label {
+    font-size: 0.78rem !important; font-weight: 500 !important;
+    letter-spacing: 0.05em !important; text-transform: uppercase !important;
     color: #9B8D7E !important;
-    margin-bottom: 0.3rem !important;
 }
-[data-testid="stSidebar"] hr {
-    border-color: #DDD6CC !important;
-    margin: 1.25rem 0 !important;
+[data-testid="stSidebar"] hr { border-color: #DDD6CC !important; margin: 1.25rem 0 !important; }
+
+/* ── Mobile settings expander ── */
+.mobile-settings [data-testid="stExpander"] {
+    background-color: #F2EFE9 !important;
+    border: 1px solid #E4DFD7 !important;
+    border-radius: 12px !important;
+    margin-bottom: 1.1rem !important;
+}
+.mobile-settings summary {
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    color: #5C5142 !important;
+}
+.mobile-settings label {
+    font-size: 0.75rem !important; font-weight: 500 !important;
+    letter-spacing: 0.04em !important; text-transform: uppercase !important;
+    color: #9B8D7E !important;
+}
+.mobile-settings .stButton > button {
+    background-color: transparent !important;
+    border: 1px solid #C8BEB2 !important;
+    border-radius: 8px !important;
+    color: #6B5D51 !important;
+    font-size: 0.82rem !important;
+    width: 100%;
 }
 
-/* ── Main Content Area ── */
+/* ── Main content ── */
 [data-testid="stMain"] { background-color: #FAF8F5 !important; }
 .block-container {
     max-width: 820px !important;
@@ -226,319 +166,122 @@ html, body, [data-testid="stAppViewContainer"] {
 }
 .chat-header h1 {
     font-family: 'Lora', serif;
-    font-size: 2rem;
-    font-weight: 500;
-    color: #2C2A27;
-    letter-spacing: -0.02em;
+    font-size: 2rem; font-weight: 500;
+    color: #2C2A27; letter-spacing: -0.02em;
     margin: 0 0 0.3rem 0;
 }
 .chat-header p {
-    font-size: 0.82rem;
-    color: #9B8D7E;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin: 0;
+    font-size: 0.82rem; color: #9B8D7E;
+    letter-spacing: 0.08em; text-transform: uppercase; margin: 0;
 }
 .header-icon {
     display: inline-block;
     background: linear-gradient(135deg, #F5A623 0%, #F76B1C 100%);
-    color: white;
-    width: 38px; height: 38px;
-    border-radius: 10px;
-    font-size: 1.1rem;
-    line-height: 38px;
-    text-align: center;
+    color: white; width: 38px; height: 38px;
+    border-radius: 10px; font-size: 1.1rem;
+    line-height: 38px; text-align: center;
     margin-bottom: 0.6rem;
     box-shadow: 0 2px 8px rgba(247,107,28,0.25);
 }
 
-/* ── Chat Messages ── */
-.message-row {
-    display: flex;
-    margin-bottom: 1.1rem;
-    animation: fadeUp 0.25s ease;
-}
+/* ── Messages ── */
+.message-row { display: flex; margin-bottom: 1.1rem; animation: fadeUp 0.25s ease; }
 .message-row.user { justify-content: flex-end; }
 .message-row.bot  { justify-content: flex-start; }
 .avatar {
-    width: 30px; height: 30px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.75rem; font-weight: 600;
-    margin-top: 2px;
+    width: 30px; height: 30px; border-radius: 50%;
+    flex-shrink: 0; display: flex; align-items: center;
+    justify-content: center; font-size: 0.75rem; font-weight: 600; margin-top: 2px;
 }
-.avatar-user {
-    background: linear-gradient(135deg, #F5A623, #F76B1C);
-    color: white; margin-left: 0.6rem; order: 2;
-}
-.avatar-bot { background: #EAE4DC; color: #6B5D51; margin-right: 0.6rem; }
+.avatar-user { background: linear-gradient(135deg, #F5A623, #F76B1C); color: white; margin-left: 0.6rem; order: 2; }
+.avatar-bot  { background: #EAE4DC; color: #6B5D51; margin-right: 0.6rem; }
 .bubble {
-    max-width: 72%;
-    padding: 0.75rem 1rem;
-    border-radius: 14px;
-    font-size: 0.9rem;
-    line-height: 1.65;
-    word-break: break-word;
+    max-width: 72%; padding: 0.75rem 1rem;
+    border-radius: 14px; font-size: 0.9rem;
+    line-height: 1.65; word-break: break-word;
 }
 .bubble-user {
     background: linear-gradient(135deg, #F5A623 0%, #F76B1C 100%);
-    color: #FFFFFF;
-    border-bottom-right-radius: 4px;
+    color: #FFFFFF; border-bottom-right-radius: 4px;
     box-shadow: 0 2px 10px rgba(247,107,28,0.2);
 }
 .bubble-bot {
     background: #FFFFFF; color: #2C2A27;
-    border: 1px solid #E8E2D9;
-    border-bottom-left-radius: 4px;
+    border: 1px solid #E8E2D9; border-bottom-left-radius: 4px;
     box-shadow: 0 1px 4px rgba(0,0,0,0.05);
 }
 
-/* ── Empty State ── */
-.empty-state { text-align: center; padding: 3.5rem 1rem; color: #B5A898; }
-.empty-state .big-icon { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.5; }
-.empty-state p {
-    font-size: 0.88rem; font-family: 'Lora', serif;
-    font-style: italic; margin: 0;
-}
+/* ── Empty state ── */
+.empty-state { text-align: center; padding: 3rem 1rem; color: #B5A898; }
+.empty-state .big-icon { font-size: 2.2rem; margin-bottom: 0.6rem; opacity: 0.45; }
+.empty-state p { font-size: 0.88rem; font-family: 'Lora', serif; font-style: italic; margin: 0; }
 
-/* ── Chat Input ── */
+/* ── Chat input ── */
 [data-testid="stChatInput"] {
-    background: #FFFFFF !important;
-    border: 1.5px solid #DDD6CC !important;
-    border-radius: 14px !important;
-    box-shadow: 0 2px 14px rgba(0,0,0,0.07) !important;
-    padding: 0.2rem 0.5rem !important;
+    background: #FFFFFF !important; border: 1.5px solid #DDD6CC !important;
+    border-radius: 14px !important; box-shadow: 0 2px 14px rgba(0,0,0,0.07) !important;
 }
-[data-testid="stChatInput"]:focus-within {
-    border-color: #B5A080 !important;
-    box-shadow: 0 2px 18px rgba(0,0,0,0.1) !important;
-}
+[data-testid="stChatInput"]:focus-within { border-color: #B5A080 !important; }
 [data-testid="stChatInput"] textarea {
     font-family: 'DM Sans', sans-serif !important;
-    font-size: 0.9rem !important;
-    color: #2C2A27 !important;
-    background: transparent !important;
+    font-size: 0.9rem !important; color: #2C2A27 !important;
 }
 [data-testid="stChatInput"] textarea::placeholder { color: #B5A898 !important; }
 [data-testid="stChatInput"] button {
     background: linear-gradient(135deg, #F5A623, #F76B1C) !important;
     border-radius: 10px !important; border: none !important;
-    color: white !important; transition: opacity 0.15s !important;
 }
-[data-testid="stChatInput"] button:hover { opacity: 0.88 !important; }
 
-/* ── Spinner / Status ── */
+/* ── Misc ── */
 [data-testid="stStatusWidget"] { display: none; }
-.stSpinner > div { border-top-color: #F5A623 !important; }
-
-/* ── Warning / Error ── */
 [data-testid="stAlert"] {
-    background-color: #FFF8F0 !important;
-    border: 1px solid #F5C49B !important;
-    border-radius: 10px !important;
-    color: #7A4E2D !important;
-    font-size: 0.85rem !important;
+    background-color: #FFF8F0 !important; border: 1px solid #F5C49B !important;
+    border-radius: 10px !important; color: #7A4E2D !important; font-size: 0.85rem !important;
 }
-
-/* ── Animations ── */
-@keyframes fadeUp {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ── Scrollbar ── */
+@keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
 ::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #D9D3C9; border-radius: 10px; }
 </style>
-
-<!-- Mobile backdrop + FAB -->
-<div id="mob-backdrop"></div>
-<button id="mob-fab" aria-label="Open settings">
-    <svg viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="11" cy="11" r="3"/>
-        <path d="M11 2v2M11 18v2M2 11h2M18 11h2M4.93 4.93l1.41 1.41M15.66 15.66l1.41 1.41M4.93 17.07l1.41-1.41M15.66 6.34l1.41-1.41"/>
-    </svg>
-</button>
-
-<script>
-(function () {
-    var isOpen = false;
-
-    function isMobile() { return window.innerWidth < 768; }
-
-    /* ── Inject a persistent <style> that JS can toggle ── */
-    var styleTag = document.createElement('style');
-    styleTag.id = 'mob-style';
-    document.head.appendChild(styleTag);
-
-    function applyStyles() {
-        if (!isMobile()) {
-            styleTag.textContent = '';
-            return;
-        }
-        var drawerTranslate = isOpen ? 'translateX(0)' : 'translateX(-105%)';
-        var backdropOpacity = isOpen ? '1' : '0';
-        var backdropPointer = isOpen ? 'all' : 'none';
-
-        styleTag.textContent = [
-            /* Force sidebar always in DOM and positioned as drawer */
-            '[data-testid="stSidebar"] {',
-            '  display: block !important;',
-            '  visibility: visible !important;',
-            '  opacity: 1 !important;',
-            '  position: fixed !important;',
-            '  top: 0 !important; left: 0 !important;',
-            '  height: 100vh !important;',
-            '  width: 82vw !important;',
-            '  max-width: 300px !important;',
-            '  z-index: 1100 !important;',
-            '  transform: ' + drawerTranslate + ' !important;',
-            '  transition: transform 0.3s ease !important;',
-            '  overflow-y: auto !important;',
-            '  box-shadow: 6px 0 40px rgba(0,0,0,0.18) !important;',
-            '  padding-top: 1.25rem !important;',
-            '}',
-            /* Full-width main content */
-            '[data-testid="stMain"] {',
-            '  margin-left: 0 !important;',
-            '  width: 100vw !important;',
-            '  min-width: 0 !important;',
-            '}',
-            '[data-testid="stAppViewContainer"] > section:first-child {',
-            '  margin-left: 0 !important;',
-            '  width: 100vw !important;',
-            '}',
-            /* Backdrop */
-            '#mob-backdrop {',
-            '  opacity: ' + backdropOpacity + ' !important;',
-            '  pointer-events: ' + backdropPointer + ' !important;',
-            '}',
-        ].join('\n');
-    }
-
-    /* ── Heartbeat: re-enforce styles every 300ms ── */
-    setInterval(function () {
-        if (!isMobile()) return;
-        var sb = document.querySelector('[data-testid="stSidebar"]');
-        if (!sb) return;
-        /* Override any inline style Streamlit sets */
-        sb.style.setProperty('display',     'block',   'important');
-        sb.style.setProperty('visibility',  'visible', 'important');
-        sb.style.setProperty('opacity',     '1',       'important');
-        sb.style.setProperty('position',    'fixed',   'important');
-        sb.style.setProperty('top',         '0',       'important');
-        sb.style.setProperty('left',        '0',       'important');
-        sb.style.setProperty('height',      '100vh',   'important');
-        sb.style.setProperty('width',       '82vw',    'important');
-        sb.style.setProperty('max-width',   '300px',   'important');
-        sb.style.setProperty('z-index',     '1100',    'important');
-        sb.style.setProperty('overflow-y',  'auto',    'important');
-        sb.style.setProperty('transform',
-            isOpen ? 'translateX(0)' : 'translateX(-105%)', 'important');
-        /* Main area */
-        var main = document.querySelector('[data-testid="stMain"]');
-        if (main) {
-            main.style.setProperty('margin-left', '0', 'important');
-            main.style.setProperty('width', '100vw', 'important');
-        }
-    }, 300);
-
-    /* ── Drawer open / close ── */
-    function openDrawer() {
-        isOpen = true;
-        applyStyles();
-    }
-    function closeDrawer() {
-        isOpen = false;
-        applyStyles();
-    }
-
-    /* ── FAB button ── */
-    var fab = document.getElementById('mob-fab');
-    if (fab) {
-        fab.addEventListener('click', function (e) {
-            e.stopPropagation();
-            if (!isMobile()) return;
-            isOpen ? closeDrawer() : openDrawer();
-        });
-    }
-
-    /* ── Backdrop tap closes drawer ── */
-    var backdrop = document.getElementById('mob-backdrop');
-    if (backdrop) {
-        backdrop.addEventListener('click', closeDrawer);
-    }
-
-    /* ── Resize: close on desktop ── */
-    window.addEventListener('resize', function () {
-        if (!isMobile()) { isOpen = false; styleTag.textContent = ''; }
-        else applyStyles();
-    });
-
-    /* ── Init ── */
-    applyStyles();
-})();
-</script>
 """, unsafe_allow_html=True)
 
 # ---------------- PROMPT ---------------- #
-prompt = ChatPromptTemplate.from_messages(
-    [
-        ("system", "You are a helpful, thoughtful assistant. Be concise but thorough."),
-        ("user", "Question: {question}")
-    ]
-)
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a helpful, thoughtful assistant. Be concise but thorough."),
+    ("user", "Question: {question}")
+])
 
 # ---------------- FUNCTION ---------------- #
 def generate_response(question, api_key, model, temperature, max_tokens):
     llm = ChatGroq(
-        groq_api_key=api_key,
-        model_name=model,
-        temperature=temperature,
-        max_tokens=max_tokens
+        groq_api_key=api_key, model_name=model,
+        temperature=temperature, max_tokens=max_tokens
     )
     chain = prompt | llm | StrOutputParser()
     return chain.invoke({'question': question})
 
+# ---------------- SESSION STATE ---------------- #
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-# ---------------- SIDEBAR ---------------- #
+# ── Desktop sidebar ──────────────────────────────────────────────── #
 with st.sidebar:
     st.markdown("### ⚙️ Settings")
     st.markdown("---")
-
-    api_key = st.text_input("Groq API Key", type="password", placeholder="gsk_...")
-
+    api_key     = st.text_input("Groq API Key", type="password", placeholder="gsk_...", key="api_key")
     st.markdown("---")
-
-    model = st.selectbox(
-        "Model",
-        ["llama-3.1-8b-instant", "llama-3.1-70b-versatile"]
-    )
+    model       = st.selectbox("Model", ["llama-3.1-8b-instant", "llama-3.1-70b-versatile"], key="model")
     st.caption("8b = faster  ·  70b = smarter")
-
-    st.markdown("")
-    temperature = st.slider("Temperature", 0.0, 1.0, 0.7, step=0.05)
+    temperature = st.slider("Temperature", 0.0, 1.0, 0.7, step=0.05, key="temperature")
     st.caption("Higher = more creative")
-    max_tokens = st.slider("Max Tokens", 50, 1000, 300, step=50)
-
+    max_tokens  = st.slider("Max Tokens", 50, 1000, 300, step=50, key="max_tokens")
     st.markdown("---")
-
-    if st.button("🧹 Clear conversation"):
+    if st.button("🧹 Clear conversation", key="clear_btn"):
         st.session_state.messages = []
         st.rerun()
-
     st.markdown(
-        "<p style='font-size:0.72rem;color:#B5A898;margin-top:1.5rem;text-align:center;'>"
-        "Powered by Groq · LangChain</p>",
-        unsafe_allow_html=True
+        "<p style='font-size:0.72rem;color:#B5A898;margin-top:1rem;text-align:center;'>"
+        "Powered by Groq · LangChain</p>", unsafe_allow_html=True
     )
-
-
-# ---------------- CHAT STATE ---------------- #
-if "messages" not in st.session_state:
-    st.session_state.messages = []
 
 # ---------------- HEADER ---------------- #
 st.markdown("""
@@ -548,6 +291,27 @@ st.markdown("""
     <p>Fast inference · Open models</p>
 </div>
 """, unsafe_allow_html=True)
+
+# ── Mobile settings expander (hidden on desktop via CSS) ─────────── #
+st.markdown('<div class="mobile-settings">', unsafe_allow_html=True)
+with st.expander("⚙️  Settings", expanded=False):
+    mob_api_key     = st.text_input("Groq API Key", type="password", placeholder="gsk_...", key="mob_api_key")
+    mob_model       = st.selectbox("Model", ["llama-3.1-8b-instant", "llama-3.1-70b-versatile"], key="mob_model")
+    st.caption("8b = faster  ·  70b = smarter")
+    mob_temperature = st.slider("Temperature", 0.0, 1.0, 0.7, step=0.05, key="mob_temperature")
+    st.caption("Higher = more creative")
+    mob_max_tokens  = st.slider("Max Tokens", 50, 1000, 300, step=50, key="mob_max_tokens")
+    if st.button("🧹 Clear conversation", key="mob_clear"):
+        st.session_state.messages = []
+        st.rerun()
+st.markdown('</div>', unsafe_allow_html=True)
+
+# Prefer mobile inputs when provided
+if st.session_state.get("mob_api_key"):
+    api_key     = st.session_state["mob_api_key"]
+    model       = st.session_state["mob_model"]
+    temperature = st.session_state["mob_temperature"]
+    max_tokens  = st.session_state["mob_max_tokens"]
 
 # ---------------- CHAT DISPLAY ---------------- #
 if not st.session_state.messages:
@@ -564,15 +328,13 @@ else:
             <div class="message-row user">
                 <div class="bubble bubble-user">{msg['content']}</div>
                 <div class="avatar avatar-user">You</div>
-            </div>
-            """, unsafe_allow_html=True)
+            </div>""", unsafe_allow_html=True)
         else:
             st.markdown(f"""
             <div class="message-row bot">
                 <div class="avatar avatar-bot">⚡</div>
                 <div class="bubble bubble-bot">{msg['content']}</div>
-            </div>
-            """, unsafe_allow_html=True)
+            </div>""", unsafe_allow_html=True)
 
 # ---------------- INPUT ---------------- #
 user_input = st.chat_input("Type a message…")
@@ -580,16 +342,14 @@ user_input = st.chat_input("Type a message…")
 # ---------------- RESPONSE ---------------- #
 if user_input:
     if not api_key:
-        st.warning("⚠️  Please enter your Groq API key in the sidebar to continue.")
+        st.warning("⚠️  Please enter your Groq API key in Settings to continue.")
         st.stop()
 
     st.session_state.messages.append({"role": "user", "content": user_input})
 
     with st.spinner(""):
         try:
-            response = generate_response(
-                user_input, api_key, model, temperature, max_tokens
-            )
+            response = generate_response(user_input, api_key, model, temperature, max_tokens)
         except Exception as e:
             response = f"⚠️ {str(e)}"
 
